@@ -1,5 +1,5 @@
 TokyoWesterns 2020 is over and was awesome.
-Many amazing challenges of all kind, in this write up I will explain how we solved "bfnote", a well-written web challenge.
+Many amazing challenges of all kind, in this write up I will explain how we (Magnum) solved "bfnote", a well-written web challenge.
 Spoiler - it was not the intended solution ;)
 
 # BFNOTE
