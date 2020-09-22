@@ -355,13 +355,14 @@ After inspecting this file, a few leads came to mind that I thought should be me
 
 ## Mutating HTML
 
-Pretty quick we managed to get the `DOM Clobbering` working so we can trigger the `innerHTML` flow.
+Notice the `DOMPurify.sanitize()` on our note's `innerText` that's being then re-added as `innerHTML` to the program div in `initProgram()`. Because we get the `innerText`, the `><` that were escaped in the php code (in `content`) are now "un-escaped" again so DOMPurify parses them as legit HTML tags!
+
+The main problem now is that `DOMPurify.sanitize` is a double edged sword: it lets us inject HTML, but it pretty much prevents us from doing anything other than that clobbering attack...
+Pretty quickly we managed to get the `DOM Clobbering` working so we can trigger the `innerHTML` flow:
 
 ```html
 <form id="CONFIG"><input type="text" id="unsafeRender"></input></form>
 ```
-
-The main problem now is `DOMPurify.sanitize`, it pretty much prevents us from doing anything other than that clobbering attack...
 
 Quick search about `DOMPurify` vulnerabilities and exploits brings up this article:
 
@@ -383,7 +384,7 @@ This is a very interesting idea, trying the suggested payload gives us something
 </div>
 ```
 
-Sadly, not XSS for us **BUT** there is a new <style> element in the page now! Trying to simply post a <style></style> note results in an empty output from `sanitize`, so, is it interesting? Consider the next payload:
+Sadly, not an XSS for us **BUT** there is a new <style> element in the page now! Trying to simply post a <style></style> note results in an empty output from `sanitize`, so, is it interesting? Consider the next payload:
 
 ```html
 <svg></p><style id=output><a id="</style><img src=1 onerror=alert(1)>">
@@ -402,12 +403,12 @@ Followed by the output of:
 print encode("html{background-color: blue}")
 ```
 
-Nice, if only the flag was an attribute of an element on the page, we could leak it!
+Nice, if only the flag was an attribute of an element on the page, we could leak it! ;)
 
 ## The solution
 
 At this point, we decided to look a little more into `DOMPurify`, visiting the project's Git page!
-Interestingly enough, `bfnote` uses `/dompurify/2.0.16/purify.min.js` and the official git page lists **`2.0.17`** as the Latest release!
+Interestingly enough, `bfnote` uses `/dompurify/2.0.16/purify.min.js` while the official git page lists **`2.0.17`** as the Latest release!
 
 Let's have a look at the changelog!
 https://github.com/cure53/DOMPurify/compare/2.0.16...2.0.17
